@@ -3,7 +3,7 @@ import axios from 'axios';
 import { JSDOM } from 'jsdom';
 
   const router = express.Router();
-  // Controle de requisições por IP (bem simples)
+  // In-memory store for rate limiting
   const requestsMap = new Map<string, { count: number; lastReset: number }>();
   const MAX_REQUESTS_PER_MINUTE = 5;
 
@@ -12,7 +12,7 @@ import { JSDOM } from 'jsdom';
     try {
       const keyword = (req.query.keyword as string)?.trim();
 
-      // Validate the query parameter
+      // Input validation
       if (!keyword) {
       return res.status(400).json({ error: 'Query parameter "keyword" is required.' });
       }
@@ -27,6 +27,7 @@ import { JSDOM } from 'jsdom';
       const now = Date.now();
       const minuteAgo = now - 60 * 1000;
 
+      // Rate limiting
       const requestData = requestsMap.get(ip) || { count: 0, lastReset: now };
       if (requestData.lastReset < minuteAgo) {
         requestData.count = 0;
@@ -39,7 +40,7 @@ import { JSDOM } from 'jsdom';
         return res.status(429).json({ error: 'Too many requests. Please wait and try again.' });
       }
 
-      // Requisição para Amazon com timeout
+      // Fetch the search results page from Amazon
       const response = await axios.get(
         `https://www.amazon.com/s?k=${encodeURIComponent(keyword)}`,
         {
@@ -55,6 +56,7 @@ import { JSDOM } from 'jsdom';
       const dom = new JSDOM(response.data);
       const document = dom.window.document;
 
+      // Parse the HTML to extract product details
       const results = Array.from(document.querySelectorAll('div.s-result-item'))
         .map(item => {
           const title = item.querySelector('h2 a span')?.textContent?.trim() || null;
