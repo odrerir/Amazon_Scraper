@@ -23,20 +23,34 @@ export async function fetchAmazonProducts(keyword: string): Promise<Product[]> {
   const document = dom.window.document;
 
   const results = Array.from(document.querySelectorAll('div.s-result-item'))
-    .map(item => {
-      const title = item.querySelector('h2 span')?.textContent?.trim() || null;
-      const rating = item.querySelector('span.a-size-small.a-color-base')?.textContent?.trim() || null;
-      const reviews = item.querySelector('span.a-size-small.puis-normal-weight-text.s-underline-text')?.textContent
-        ?.replace(/[()]/g, '')
-        ?.trim() || null;
-      const image = (item.querySelector('img.s-image') as HTMLImageElement)?.src || null;
+  .map(item => {
+    const title = item.querySelector('h2 span')?.textContent?.trim() || null;
 
-      if (title) {
-        return { title, rating, reviews, image };
+    // Rating - pega do span dentro do reviews-block
+    const rating = item.querySelector('div[data-cy="reviews-block"] span.a-size-small.a-color-base')
+      ?.textContent?.trim() || null;
+
+    // Reviews - pega do link com aria-label contendo "classificações"
+    const reviewsElement = item.querySelector('a[aria-label*="classificações"]') ||
+                          item.querySelector('a.a-link-normal.s-underline-text.s-underline-link-text.s-link-style');
+    let reviews = null;
+    if (reviewsElement) {
+      const ariaLabel = reviewsElement.getAttribute('aria-label');
+      if (ariaLabel) {
+        // Extrai o número de classificações do aria-label
+        const match = ariaLabel.match(/(\d+(?:,\d+)*)/);
+        reviews = match ? match[1] : null;
       }
-      return null;
-    })
-    .filter((item): item is Product => item !== null);
+    }
+
+    const image = (item.querySelector('img.s-image') as HTMLImageElement)?.src || null;
+
+    if (title) {
+      return { title, rating, reviews, image };
+    }
+    return null;
+  })
+  .filter((item): item is Product => item !== null);
 
   return results;
 }
