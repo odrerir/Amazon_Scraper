@@ -1,10 +1,10 @@
 import type { Request, Response } from 'express';
-import { fetchAmazonProducts } from '../models/searchModel.ts';
+import { scrapeAmazonProducts } from '../models/searchModel.ts';
 
 export async function scrapeController(req: Request, res: Response) {
   const keyword = (req.query.keyword as string)?.trim();
 
-  // Validações básicas
+  // Input validation
   if (!keyword) {
     return res.status(400).json({ error: 'Query parameter "keyword" is required.' });
   }
@@ -16,7 +16,7 @@ export async function scrapeController(req: Request, res: Response) {
   }
 
   try {
-    const results = await fetchAmazonProducts(keyword);
+    const results = await scrapeAmazonProducts(keyword);
     res.json({ results });
   } catch (error) {
     console.error('Error fetching search results:', error);
