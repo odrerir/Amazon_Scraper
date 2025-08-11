@@ -28,27 +28,6 @@ Um sistema completo de web scraping para extrair informações de produtos da Am
 - **Vanilla JavaScript** - Funcionalidades interativas
 - **Fetch API** - Requisições AJAX
 
-## 📁 Estrutura do Projeto
-
-```
-amazon-scraper/
-├── server.ts                    # Servidor principal
-├── index.html                   # Interface do usuário
-├── src/
-│   ├── controllers/
-│   │   └── searchController.ts  # Lógica dos endpoints
-│   ├── models/
-│   │   └── searchModel.ts       # Lógica de scraping
-│   ├── routes/
-│   │   └── searchRouter.ts      # Definição de rotas
-│   ├── middlewares/
-│   │   └── rateLimit.ts         # Limitador de requisições
-│   ├── main.js                  # JavaScript do frontend
-│   └── style.css               # Estilos do frontend
-├── package.json
-└── README.md
-```
-
 ## 🛠 Instalação e Configuração
 
 ### Pré-requisitos
